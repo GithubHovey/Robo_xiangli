@@ -71,8 +71,8 @@ LV_IMG_DECLARE(test3);
 void DeviceInit()
 {
     ScreenInit();
-    lv_obj_t * icon = lv_img_create(lv_scr_act());
-    lv_img_set_src(icon, &test3);
+    // lv_obj_t * icon = lv_img_create(lv_scr_act());
+    // lv_img_set_src(icon, &test3);
 }
 
 static void ScreenInit()

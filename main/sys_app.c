@@ -17,7 +17,7 @@ TaskHandle_t lvgl_handle;
 void task_lvgl(void * arg);
 void AppInit()
 {
-    xTaskCreatePinnedToCore(task_lvgl,"handler.task_lvgl",2048,NULL,1,&lvgl_handle,CPU0);
+    xTaskCreatePinnedToCore(task_lvgl,"handler.task_lvgl",20480,NULL,1,&lvgl_handle,CPU0);
 }
 void task_lvgl(void * arg)
 {
