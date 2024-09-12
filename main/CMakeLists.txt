@@ -1,2 +1,11 @@
-idf_component_register(SRCS "myGUI.c" "main.c" "sys_dev.c" "sys_app.c" "test3.c" "myGUI.c"
-                    INCLUDE_DIRS "./include")
+file(GLOB DRIVER_SRCS "./Drivers/src/*.c")
+file(GLOB MIDDLEWARE_SRCS "./Middlewares/src/*.c")
+file(GLOB APPLICATION_SRCS "./Applications/src/*.c")
+idf_component_register(SRCS "main.c" "test3.c"
+                            ${DRIVER_SRCS}
+                            ${MIDDLEWARE_SRCS}
+                            ${APPLICATION_SRCS}
+                    INCLUDE_DIRS    "./Drivers/include"
+                                    "./Middlewares/include"
+                                    "./Applications/include"
+                                    )

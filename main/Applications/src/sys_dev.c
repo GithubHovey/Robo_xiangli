@@ -7,7 +7,7 @@
  * @attention 
  
 ------------------------------------------------------------------------------*/
-#include "include/sys_init.h"
+#include "../include/sys_init.h"
 #include "esp_log.h"
 #include "esp_err.h"
 #include "esp_lcd_panel_rgb.h"

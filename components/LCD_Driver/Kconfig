@@ -1,6 +1,0 @@
-menu "LCD driver configuration"
-    config ENABLE_ST7701S_LCD
-        bool "Enable the ST7701S LCD screen driver."
-        help
-            This enables the ST7701S LCD screen driver.
-endmenu

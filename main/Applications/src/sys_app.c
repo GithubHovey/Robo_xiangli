@@ -7,7 +7,7 @@
  * @attention 
  
 ------------------------------------------------------------------------------*/
-#include "include/sys_init.h"
+#include "../include/sys_init.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "lvgl.h"

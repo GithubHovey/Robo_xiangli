@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "include/sys_init.h"
-#include "include/myGUI.h"
+#include "Applications/include/sys_init.h"
+#include "Middlewares/include/myGUI.h"
 void app_main(void)
 {
     DeviceInit();

@@ -1,4 +1,4 @@
-#include "ST7701S.h"
+#include "../include/ST7701S.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
 #define SPI_WriteComm(cmd) ST7701S_WriteCommand(St7701S_handle, cmd)
