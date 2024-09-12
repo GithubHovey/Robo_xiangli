@@ -8,8 +8,7 @@
  
 ------------------------------------------------------------------------------*/
 #include "../include/sys_init.h"
-#include "esp_log.h"
-#include "esp_err.h"
+#include "../include/sys_internal.h"
 #include "esp_lcd_panel_rgb.h"
 #include "esp_lcd_panel_ops.h"
 #include "ST7701S.h"
@@ -70,9 +69,12 @@ LV_IMG_DECLARE(test3);
 
 void DeviceInit()
 {
+#if USE_SCREEN == 1
     ScreenInit();
     // lv_obj_t * icon = lv_img_create(lv_scr_act());
     // lv_img_set_src(icon, &test3);
+#endif 
+    
 }
 
 static void ScreenInit()

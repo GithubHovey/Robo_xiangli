@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------------
- * @file    SYSINIT.H
+ * @file    SYS_INTERNAL.H
  * @author  Hovey https://space.bilibili.com/33582262?spm_id_from=333.1007.0.0
- * @date    2024/08/27 10:39:09
+ * @date    2024/09/12 21:54:16
  * @brief   
  * -----------------------------------------------------------------------------
  * @attention 
@@ -9,12 +9,17 @@
 ------------------------------------------------------------------------------*/
 
 /* Define to prevent recursive inclusion  ------------------------------------*/
-#ifndef __SYSINIT_H
-#define __SYSINIT_H
+#ifndef __SYS_INTERNAL_H
+#define __SYS_INTERNAL_H
 
 /* Files includes  -----------------------------------------------------------*/
-#include "user_config.h"
-#include "sys_internal.h"
+#include "esp_log.h"
+#include "esp_err.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "lvgl.h"
+
+#include "../../Drivers/include/MAX98357.h"
 /* Defines -------------------------------------------------------------------*/
 
 
@@ -22,6 +27,5 @@
 
 
 /* Functions ----------------------------------------------------------------*/
-void DeviceInit();
-void AppInit();
+
 #endif

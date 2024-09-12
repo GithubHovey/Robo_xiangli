@@ -5,6 +5,5 @@ void app_main(void)
 {
     DeviceInit();
     AppInit();
-    GUI_init();
 }
 
