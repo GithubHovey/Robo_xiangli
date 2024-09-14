@@ -74,7 +74,9 @@ void DeviceInit()
     // lv_obj_t * icon = lv_img_create(lv_scr_act());
     // lv_img_set_src(icon, &test3);
 #endif 
-    
+#if USE_AUDIO == 1
+
+#endif  
 }
 
 static void ScreenInit()
