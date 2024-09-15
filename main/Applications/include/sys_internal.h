@@ -19,8 +19,8 @@
 #include "freertos/task.h"
 #include "lvgl.h"
 
-#include "../../Drivers/include/MAX98357.h"
 #include "../../Modules/include/audio.h"
+#include "../../Modules/include/screen.h"
 /* Defines -------------------------------------------------------------------*/
 
 

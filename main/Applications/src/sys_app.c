@@ -13,13 +13,13 @@
 #define CPU0 1
 #define CPU1 2
 TaskHandle_t lvgl_handle;
-TaskHandle_t audio_handle;
-void task_lvgl(void * arg);
+TaskHandle_t screen_handle;
 // void task_audio(void * arg);
 void AppInit()
 {
 #if USE_SCREEN == 1
-    xTaskCreatePinnedToCore(task_lvgl,"app.lvgl",20480,NULL,1,&lvgl_handle,CPU0);
+    xTaskCreatePinnedToCore(lvgl_task,"app.lvgl",20480,NULL,1,&lvgl_handle,CPU0);
+    xTaskCreatePinnedToCore(screen_task,"app.Screen",2048,NULL,1,&screen_handle,CPU0);
 #endif 
 #if USE_AUDIO == 1
     // xTaskCreatePinnedToCore(task_audio,"app._audio",20480,NULL,1,&lvgl_handle,CPU0);
@@ -27,15 +27,7 @@ void AppInit()
 #endif 
    
 }
-void task_lvgl(void * arg)
-{
-    for (;;)
-    {
-        //ESP_LOGI(TAG, "my module tag");
-        vTaskDelay(5);
-        lv_timer_handler();
-    }
-}
+
 // #define EXAMPLE_BUFF_SIZE               2048
 // void task_audio(void * arg)
 // {

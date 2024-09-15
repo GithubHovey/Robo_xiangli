@@ -1,6 +1,8 @@
 #include "../include/ST7701S.h"
 #include "freertos/task.h"
 #include "driver/gpio.h"
+#include "esp_log.h"
+#include "esp_err.h"
 #define SPI_WriteComm(cmd) ST7701S_WriteCommand(St7701S_handle, cmd)
 #define SPI_WriteData(data) ST7701S_WriteData(St7701S_handle, data)
 #define Delay(ms) vTaskDelay(ms / portTICK_PERIOD_MS)
@@ -8,7 +10,7 @@
 void ioexpander_init(){};
 void ioexpander_write_cmd(){};
 void ioexpander_write_data(){};
-
+static const char* TAG_ST7701s = "[Driver-ST7701S]";
 /**
  * @brief Example Create an ST7701S object
  * @param SDA SDA pin
@@ -18,16 +20,16 @@ void ioexpander_write_data(){};
  * @param method_select  SPI_METHOD,IOEXPANDER_METHOD
  * @note
 */
-ST7701S_handle ST7701S_newObject(int SDA, int SCL, int CS, char channel_select, char method_select)
+ST7701S_handle ST7701S_newObject()
 {
     // if you use `malloc()`, please set 0 in the area to be assigned.
     ST7701S_handle st7701s_handle = heap_caps_calloc(1, sizeof(ST7701S), MALLOC_CAP_DEFAULT);
-    st7701s_handle->method_select = method_select;
-    
-    if(method_select){
+    // st7701s_handle->method_select = SPI_METHOD;
+    spi_host_device_t channel_select = SPI3_HOST;
+    // if(SPI_METHOD){
         st7701s_handle->spi_io_config_t.miso_io_num = -1;
-        st7701s_handle->spi_io_config_t.mosi_io_num = SDA;
-        st7701s_handle->spi_io_config_t.sclk_io_num = SCL;
+        st7701s_handle->spi_io_config_t.mosi_io_num = SPI_SDA;
+        st7701s_handle->spi_io_config_t.sclk_io_num = SPI_SCL;
         st7701s_handle->spi_io_config_t.quadwp_io_num = -1;
         st7701s_handle->spi_io_config_t.quadhd_io_num = -1;
 
@@ -39,17 +41,117 @@ ST7701S_handle ST7701S_newObject(int SDA, int SCL, int CS, char channel_select, 
         st7701s_handle->st7701s_protocol_config_t.address_bits = 8;
         st7701s_handle->st7701s_protocol_config_t.clock_speed_hz = 10000000;
         st7701s_handle->st7701s_protocol_config_t.mode = 0;
-        st7701s_handle->st7701s_protocol_config_t.spics_io_num = CS;
+        st7701s_handle->st7701s_protocol_config_t.spics_io_num = SPI_CS;
         st7701s_handle->st7701s_protocol_config_t.queue_size = 1;
 
         ESP_ERROR_CHECK(spi_bus_add_device(channel_select, &(st7701s_handle->st7701s_protocol_config_t),
                                         &(st7701s_handle->spi_device)));
-        
+
+
+
+    st7701s_handle->panel_config = (esp_lcd_rgb_panel_config_t){
+        .data_width = 16, // RGB565 in parallel mode, thus 16bit in width
+        .psram_trans_align = 64,
+        .num_fbs = LCD_NUM_FB,
+#if CONFIG_USE_BOUNCE_BUFFER
+        .bounce_buffer_size_px = 10 * LCD_H_RES,
+#endif
+        .clk_src = LCD_CLK_SRC_PLL240M,
+        .disp_gpio_num = PIN_NUM_DISP_EN,
+        .pclk_gpio_num = PIN_NUM_PCLK,
+        .vsync_gpio_num = PIN_NUM_VSYNC,
+        .hsync_gpio_num = PIN_NUM_HSYNC,
+        .de_gpio_num = PIN_NUM_DE,
+        .data_gpio_nums = {
+            PIN_NUM_DATA0,
+            PIN_NUM_DATA1,
+            PIN_NUM_DATA2,
+            PIN_NUM_DATA3,
+            PIN_NUM_DATA4,
+            PIN_NUM_DATA5,
+            PIN_NUM_DATA6,
+            PIN_NUM_DATA7,
+            PIN_NUM_DATA8,
+            PIN_NUM_DATA9,
+            PIN_NUM_DATA10,
+            PIN_NUM_DATA11,
+            PIN_NUM_DATA12,
+            PIN_NUM_DATA13,
+            PIN_NUM_DATA14,
+            PIN_NUM_DATA15,
+        },
+        .timings = {
+            .pclk_hz = LCD_PIXEL_CLOCK_HZ,
+            .h_res = LCD_H_RES,
+            .v_res = LCD_V_RES, 
+            .hsync_back_porch = 10,
+            .hsync_front_porch = 50,
+            .hsync_pulse_width = 8,
+            .vsync_back_porch = 8,
+            .vsync_front_porch = 8,
+            .vsync_pulse_width = 3,     
+            .flags.pclk_active_neg = false,
+        },
+        .flags.fb_in_psram = true, // allocate frame buffer in PSRAM
+    };   
+    ESP_ERROR_CHECK(esp_lcd_new_rgb_panel(&st7701s_handle->panel_config, &st7701s_handle->panel_handle));
+
+    ESP_LOGI(TAG_ST7701s, "Register event callbacks");
+    esp_lcd_rgb_panel_event_callbacks_t cbs = {
+        .on_vsync = on_vsync_event,
+    };
+    
+    ESP_ERROR_CHECK(esp_lcd_rgb_panel_register_event_callbacks(st7701s_handle->panel_handle, &cbs, NULL));
+
+
+//         st7701s_handle->panel_config.data_width = 16; // RGB565 in parallel mode, thus 16bit in width
+//         st7701s_handle->panel_config.psram_trans_align = 64;
+//         st7701s_handle->panel_config.num_fbs = LCD_NUM_FB;
+// #if CONFIG_USE_BOUNCE_BUFFER
+//         st7701s_handle->panel_config.bounce_buffer_size_px = 10 * LCD_H_RES,
+// #endif
+//         st7701s_handle->panel_config.clk_src = LCD_CLK_SRC_PLL240M;
+//         st7701s_handle->panel_config.disp_gpio_num = PIN_NUM_DISP_EN;
+//         st7701s_handle->panel_config.pclk_gpio_num = PIN_NUM_PCLK;
+//         st7701s_handle->panel_config.vsync_gpio_num = PIN_NUM_VSYNC;
+//         st7701s_handle->panel_config.hsync_gpio_num = PIN_NUM_HSYNC;
+//         st7701s_handle->panel_config.de_gpio_num = PIN_NUM_DE;
+//         st7701s_handle->panel_config.data_gpio_nums = {
+//             PIN_NUM_DATA0,
+//             PIN_NUM_DATA1,
+//             PIN_NUM_DATA2,
+//             PIN_NUM_DATA3,
+//             PIN_NUM_DATA4,
+//             PIN_NUM_DATA5,
+//             PIN_NUM_DATA6,
+//             PIN_NUM_DATA7,
+//             PIN_NUM_DATA8,
+//             PIN_NUM_DATA9,
+//             PIN_NUM_DATA10,
+//             PIN_NUM_DATA11,
+//             PIN_NUM_DATA12,
+//             PIN_NUM_DATA13,
+//             PIN_NUM_DATA14,
+//             PIN_NUM_DATA15,
+//         };
+//         st7701s_handle->panel_config.timings = {
+//             .pclk_hz = LCD_PIXEL_CLOCK_HZ,
+//             .h_res = LCD_H_RES,
+//             .v_res = LCD_V_RES, 
+//             .hsync_back_porch = 10,
+//             .hsync_front_porch = 50,
+//             .hsync_pulse_width = 8,
+//             .vsync_back_porch = 8,
+//             .vsync_front_porch = 8,
+//             .vsync_pulse_width = 3,     
+//             .flags.pclk_active_neg = false,
+//         },
+//         st7701s_handle->panel_config.flags.fb_in_psram = true;// allocate frame buffer in PSRAM
         return st7701s_handle;
-    }else{
-        ioexpander_init();
-    }
-    return NULL;
+    // }else{
+    //     ioexpander_init();
+    // }
+    // return NULL;
 }
 
 /**
@@ -58,9 +160,9 @@ ST7701S_handle ST7701S_newObject(int SDA, int SCL, int CS, char channel_select, 
  * @param type 
  * @note
 */
-void ST7701S_screen_init(ST7701S_handle St7701S_handle, unsigned char type)
+void ST7701S_screen_config(ST7701S_handle St7701S_handle)
 {
-    switch(type)
+    switch(SCREEN_TYPE)
     {
         case 1:/*4 inch*/
             {
@@ -561,6 +663,18 @@ void ST7701S_screen_init(ST7701S_handle St7701S_handle, unsigned char type)
  * @brief Example Delete the ST7701S object
  * @param St7701S_handle 
 */
+/**
+* @brief  
+* @param  
+* @return 
+*/
+void ST7701S_Init(ST7701S_handle St7701S_handle)
+{   
+    ESP_LOGI(TAG_ST7701s, "Initialize RGB LCD panel");
+    ST7701S_screen_config(St7701S_handle);
+    ESP_ERROR_CHECK(esp_lcd_panel_reset(St7701S_handle->panel_handle));
+    ESP_ERROR_CHECK(esp_lcd_panel_init(St7701S_handle->panel_handle));
+}
 void ST7701S_delObject(ST7701S_handle St7701S_handle)
 {
     assert(St7701S_handle != NULL);
@@ -574,7 +688,7 @@ void ST7701S_delObject(ST7701S_handle St7701S_handle)
 */
 void ST7701S_WriteCommand(ST7701S_handle St7701S_handle, uint8_t cmd)
 {
-    if(St7701S_handle->method_select){
+    // if(St7701S_handle->method_select){
         spi_transaction_t spi_tran = {
             .rxlength = 0,
             .length = 0,
@@ -582,9 +696,9 @@ void ST7701S_WriteCommand(ST7701S_handle St7701S_handle, uint8_t cmd)
             .addr = cmd,
         };
         spi_device_transmit(St7701S_handle->spi_device, &spi_tran);
-    }else{
-        ioexpander_write_cmd();
-    }
+    // }else{
+    //     ioexpander_write_cmd();
+    // }
 }
 
 /**
@@ -594,7 +708,7 @@ void ST7701S_WriteCommand(ST7701S_handle St7701S_handle, uint8_t cmd)
 */
 void ST7701S_WriteData(ST7701S_handle St7701S_handle, uint8_t data)
 {
-    if(St7701S_handle->method_select){
+    // if(St7701S_handle->method_select){
         spi_transaction_t spi_tran = {
             .rxlength = 0,
             .length = 0,
@@ -602,7 +716,27 @@ void ST7701S_WriteData(ST7701S_handle St7701S_handle, uint8_t data)
             .addr = data,
         };
         spi_device_transmit(St7701S_handle->spi_device, &spi_tran);
-    }else{
-        ioexpander_write_data();
+    // }else{
+    //     ioexpander_write_data();
+    // }
+}
+
+void flush_color(ST7701S_handle St7701S_handle, int x_start, int y_start, int x_end, int y_end, const void *color_data)
+{
+    esp_lcd_panel_draw_bitmap(St7701S_handle->panel_handle, x_start, y_start, x_end, y_end, color_data);
+}
+/**
+* @brief  
+* @param  
+* @return 
+*/
+bool on_vsync_event(esp_lcd_panel_handle_t panel, const esp_lcd_rgb_panel_event_data_t *event_data, void *user_data)
+{
+    BaseType_t high_task_awoken = pdFALSE;
+#if CONFIG_AVOID_TEAR_EFFECT_WITH_SEM
+    if (xSemaphoreTakeFromISR(sem_gui_ready, &high_task_awoken) == pdTRUE) {
+        xSemaphoreGiveFromISR(sem_vsync_end, &high_task_awoken);
     }
+#endif
+    return high_task_awoken == pdTRUE;
 }

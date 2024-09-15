@@ -3,7 +3,8 @@
 #include "Middlewares/include/myGUI.h"
 void app_main(void)
 {
-    DeviceInit();
+    Module_init();
     AppInit();
+    
 }
 

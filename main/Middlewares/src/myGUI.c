@@ -8,7 +8,7 @@
  
 ------------------------------------------------------------------------------*/
 #include "../include/myGUI.h"
-
+#include "../../Drivers/include/ST7701S.h"
 
 
 
@@ -18,18 +18,16 @@ static void Expression_init();
 static void BlinkExec(void * _obj, int v);
 static void LoadingWaveInit();
 static void LoadingWaveExec(void * _obj, int v);
-#define MY_DISP_HOR_RES 480
-#define MY_DISP_VER_RES 480
 
 /*-------------------------------------------------------------*/
 
 static lv_point_t l_eye_points[] = {
-    {MY_DISP_HOR_RES/2-EYES_INTERVAL/2,EYES_Y_POS-EYES_LENTH_MAX/2},
-    {MY_DISP_HOR_RES/2-EYES_INTERVAL/2,EYES_Y_POS+EYES_LENTH_MAX/2}
+    {LCD_H_RES/2-EYES_INTERVAL/2,EYES_Y_POS-EYES_LENTH_MAX/2},
+    {LCD_H_RES/2-EYES_INTERVAL/2,EYES_Y_POS+EYES_LENTH_MAX/2}
 };
 static lv_point_t r_eye_points[] = {
-    {MY_DISP_HOR_RES/2+EYES_INTERVAL/2,EYES_Y_POS-EYES_LENTH_MAX/2},
-    {MY_DISP_HOR_RES/2+EYES_INTERVAL/2,EYES_Y_POS+EYES_LENTH_MAX/2}
+    {LCD_H_RES/2+EYES_INTERVAL/2,EYES_Y_POS-EYES_LENTH_MAX/2},
+    {LCD_H_RES/2+EYES_INTERVAL/2,EYES_Y_POS+EYES_LENTH_MAX/2}
 };
 static lv_point_t mouth_points[] = {
     {220,350},
@@ -69,10 +67,10 @@ static Animation animation[] = {
 */
 void GUI_init(void)
 {
-    Expression_init();
-    Blink();
-    // LoadingWaveInit();
-    // WaveLoading();
+    // Expression_init();
+    // Blink();
+    LoadingWaveInit();
+    WaveLoading();
     // LoadingWaveExec(&RoboLoading,1);
     // LoadingWaveExec(&RoboLoading,1);
     // LoadingWaveExec(&RoboLoading,1);
@@ -134,8 +132,8 @@ static void LoadingWaveInit()
     for (int i = 0; i < WAVES_NUMB; i++)
     {
         RoboLoading.wave[i] = lv_line_create(lv_scr_act()); 
-        RoboLoading.wave_point[i][0].x = (MY_DISP_HOR_RES - WAVES_WIDTH)/2 + (1 + i) *(WAVES_WIDTH/(WAVES_NUMB+1));
-        RoboLoading.wave_point[i][1].x = (MY_DISP_HOR_RES - WAVES_WIDTH)/2 + (1 + i) *(WAVES_WIDTH/(WAVES_NUMB+1));  
+        RoboLoading.wave_point[i][0].x = (LCD_H_RES - WAVES_WIDTH)/2 + (1 + i) *(WAVES_WIDTH/(WAVES_NUMB+1));
+        RoboLoading.wave_point[i][1].x = (LCD_H_RES - WAVES_WIDTH)/2 + (1 + i) *(WAVES_WIDTH/(WAVES_NUMB+1));  
         lv_obj_set_style_line_width(RoboLoading.wave[i],WAVES_WIDTH/9/2,LV_PART_MAIN);
         // lv_obj_set_style_line_rounded(RoboLoading.wave[i],true,LV_PART_MAIN);
         lv_obj_set_style_line_color(RoboLoading.wave[i],lv_palette_main(LV_PALETTE_BLUE),LV_PART_MAIN);
@@ -143,16 +141,16 @@ static void LoadingWaveInit()
         {
             delta_y = (i*i*a + WAVE_MIN_HEIGHT);
             delta_y = (delta_y > WAVES_MAX_LENTH/2-10) ? WAVES_MAX_LENTH/2-15 : delta_y;//限制最大值
-            // RoboLoading.wave_point[i][0].y = MY_DISP_VER_RES/2 - delta_y;
-            // RoboLoading.wave_point[i][1].y = MY_DISP_VER_RES/2 + delta_y;
+            // RoboLoading.wave_point[i][0].y = LCD_V_RES/2 - delta_y;
+            // RoboLoading.wave_point[i][1].y = LCD_V_RES/2 + delta_y;
         }
         else if(i >= WAVES_TYPE_NUMB)
         {
             int symmetry = WAVES_NUMB-1-i;
             delta_y = (symmetry*symmetry*a + WAVE_MIN_HEIGHT);            
         }
-        RoboLoading.wave_point[i][0].y = MY_DISP_VER_RES/2 - delta_y;
-        RoboLoading.wave_point[i][1].y = MY_DISP_VER_RES/2 + delta_y;
+        RoboLoading.wave_point[i][0].y = LCD_V_RES/2 - delta_y;
+        RoboLoading.wave_point[i][1].y = LCD_V_RES/2 + delta_y;
         lv_line_set_points(RoboLoading.wave[i],RoboLoading.wave_point[i],2);
     }
     /*动画初始化*/
@@ -222,8 +220,8 @@ static void LoadingWaveExec(void * _obj, int v)
         //     int symmetry = WAVES_NUMB-1-i;
         //     delta_y = (symmetry*symmetry*a + WAVE_MIN_HEIGHT);            
         // }
-        // obj->wave_point[i][0].y = MY_DISP_VER_RES/2 - delta_y;
-        // obj->wave_point[i][1].y = MY_DISP_VER_RES/2 + delta_y;
+        // obj->wave_point[i][0].y = LCD_V_RES/2 - delta_y;
+        // obj->wave_point[i][1].y = LCD_V_RES/2 + delta_y;
 
 
         if(i != WAVES_NUMB - 1)

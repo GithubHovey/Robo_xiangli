@@ -22,6 +22,6 @@
 
 
 /* Functions ----------------------------------------------------------------*/
-void DeviceInit();
+void Module_init();
 void AppInit();
 #endif

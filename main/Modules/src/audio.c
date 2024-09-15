@@ -100,11 +100,13 @@ void Audio_task(void *args)
     ESP_LOGI(TAG, "[ 6 ] Listen for all pipeline events");
     while (1) {
         audio_event_iface_msg_t msg;
+        printf("bp1\n");
         esp_err_t ret = audio_event_iface_listen(evt, &msg, portMAX_DELAY);
         if (ret != ESP_OK) {
             ESP_LOGE(TAG, "[ * ] Event interface error : %d", ret);
+            printf("bp2\n");
             continue;
-        }
+        } 
 
         if (msg.source_type == AUDIO_ELEMENT_TYPE_ELEMENT && msg.source == (void *) mp3_decoder
             && msg.cmd == AEL_MSG_CMD_REPORT_MUSIC_INFO) {
@@ -115,6 +117,7 @@ void Audio_task(void *args)
                      music_info.sample_rates, music_info.bits, music_info.channels);
 
             i2s_stream_set_clk(i2s_stream_writer, music_info.sample_rates, music_info.bits, music_info.channels);
+            printf("bp3\n");
             continue;
         }
 
