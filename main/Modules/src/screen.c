@@ -24,6 +24,7 @@ void ScreenInit()
 {
     st7701s = ST7701S_newObject();    
     ST7701S_Init(st7701s); 
+    ESP_LOGI(MODULE_SCREEN, "ST7701S_Init success.");
     Enable_lvgl_for_screen(st7701s);
     ESP_LOGI(MODULE_SCREEN, "Screen init success.");
 }
@@ -31,7 +32,7 @@ void screen_task(void *args)
 {
     const char* tag = pcTaskGetName(xTaskGetCurrentTaskHandle());
     ESP_LOGI(tag, "%s is created.",tag);
-    GUI_init();
+    
     for(;;)
     {
         vTaskDelay(5);
@@ -39,6 +40,7 @@ void screen_task(void *args)
 }
 void lvgl_task(void * arg)
 {
+    GUI_init();
     for (;;)
     {
         vTaskDelay(5);

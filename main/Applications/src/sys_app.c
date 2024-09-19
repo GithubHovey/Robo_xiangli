@@ -19,7 +19,7 @@ void AppInit()
 {
 #if USE_SCREEN == 1
     xTaskCreatePinnedToCore(lvgl_task,"app.lvgl",20480,NULL,1,&lvgl_handle,CPU0);
-    xTaskCreatePinnedToCore(screen_task,"app.Screen",2048,NULL,1,&screen_handle,CPU0);
+    xTaskCreatePinnedToCore(screen_task,"app.Screen",20480,NULL,1,&screen_handle,CPU0);
 #endif 
 #if USE_AUDIO == 1
     // xTaskCreatePinnedToCore(task_audio,"app._audio",20480,NULL,1,&lvgl_handle,CPU0);

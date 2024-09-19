@@ -125,8 +125,18 @@ void Audio_task(void *args)
         if (msg.source_type == AUDIO_ELEMENT_TYPE_ELEMENT && msg.source == (void *) i2s_stream_writer
             && msg.cmd == AEL_MSG_CMD_REPORT_STATUS
             && (((int)msg.data == AEL_STATUS_STATE_STOPPED) || ((int)msg.data == AEL_STATUS_STATE_FINISHED))) {
-            ESP_LOGW(TAG, "[ * ] Stop event received");
-            break;
+            // ESP_LOGW(TAG, "[ * ] Stop event received");
+            // break;
+            ESP_LOGW(TAG, "[ * ] Stop event received, restarting playback");
+            audio_pipeline_reset_ringbuffer(pipeline);
+            audio_pipeline_reset_elements(pipeline);
+            audio_pipeline_change_state(pipeline, AEL_STATE_INIT);
+            /*replay music*/
+            // esp_err_t ret = audio_element_set_uri(spiffs_stream_reader, "/spiffs/start.mp3");
+            // if (ret != ESP_OK) {
+            //     ESP_LOGE(TAG, "Failed to set URI: %d", ret);
+            // }
+            // audio_pipeline_run(pipeline);
         }
     }
 

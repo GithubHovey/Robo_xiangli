@@ -67,10 +67,10 @@ static Animation animation[] = {
 */
 void GUI_init(void)
 {
-    // Expression_init();
-    // Blink();
-    LoadingWaveInit();
-    WaveLoading();
+    Expression_init();
+    Blink();
+    // LoadingWaveInit();
+    // WaveLoading();
     // LoadingWaveExec(&RoboLoading,1);
     // LoadingWaveExec(&RoboLoading,1);
     // LoadingWaveExec(&RoboLoading,1);

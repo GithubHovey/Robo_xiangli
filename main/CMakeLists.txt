@@ -2,7 +2,7 @@ file(GLOB DRIVER_SRCS "./Drivers/src/*.c")
 file(GLOB MIDDLEWARE_SRCS "./Middlewares/src/*.c")
 file(GLOB MODULE_SRCS "./Modules/src/*.c")
 file(GLOB APPLICATION_SRCS "./Applications/src/*.c")
-idf_component_register(SRCS "main.c" "test3.c"
+idf_component_register(SRCS "main.c"
                             ${DRIVER_SRCS}
                             ${MIDDLEWARE_SRCS}
                             ${MODULE_SRCS}
