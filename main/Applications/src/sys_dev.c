@@ -17,5 +17,8 @@ void Module_init()
 #endif 
 #if USE_AUDIO == 1
 
-#endif  
+#endif 
+#if USE_NETWORK == 1
+    NetworkInit();
+#endif
 }

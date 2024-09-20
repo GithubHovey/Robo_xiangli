@@ -1,7 +1,7 @@
 /*------------------------------------------------------------------------------
- * @file    SYS_INTERNAL.H
+ * @file    ROBOT_NETWORK.H
  * @author  Hovey https://space.bilibili.com/33582262?spm_id_from=333.1007.0.0
- * @date    2024/09/12 21:54:16
+ * @date    2024/09/19 21:44:20
  * @brief   
  * -----------------------------------------------------------------------------
  * @attention 
@@ -9,19 +9,12 @@
 ------------------------------------------------------------------------------*/
 
 /* Define to prevent recursive inclusion  ------------------------------------*/
-#ifndef __SYS_INTERNAL_H
-#define __SYS_INTERNAL_H
+#ifndef __ROBOT_NETWORK_H
+#define __ROBOT_NETWORK_H
 
 /* Files includes  -----------------------------------------------------------*/
-#include "esp_log.h"
-#include "esp_err.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "lvgl.h"
+// #include <string.h>
 
-#include "../../Modules/include/robot_audio.h"
-#include "../../Modules/include/robot_screen.h"
-#include "../../Modules/include/robot_network.h"
 /* Defines -------------------------------------------------------------------*/
 
 
@@ -29,5 +22,6 @@
 
 
 /* Functions ----------------------------------------------------------------*/
-
+void NetworkInit();
+void NetworkTask(void *args);
 #endif

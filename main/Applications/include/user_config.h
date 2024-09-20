@@ -3,4 +3,5 @@
 
 #define USE_SCREEN  1
 #define USE_AUDIO   0
+#define USE_NETWORK 1
 #endif
