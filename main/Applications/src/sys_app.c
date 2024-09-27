@@ -10,20 +10,21 @@
 #include "../include/sys_init.h"
 #include "../include/sys_internal.h"
 
-#define CPU0 1
-#define CPU1 2
+#define CPU0 0
+#define CPU1 1
 TaskHandle_t lvgl_handle;
 TaskHandle_t screen_handle;
+TaskHandle_t audio_handle;
 // void task_audio(void * arg);
 void AppInit()
 {
 #if USE_SCREEN == 1
     xTaskCreatePinnedToCore(lvgl_task,"app.lvgl",20480,NULL,1,&lvgl_handle,CPU0);
-    xTaskCreatePinnedToCore(screen_task,"app.Screen",20480,NULL,1,&screen_handle,CPU0);
+    // xTaskCreatePinnedToCore(screen_task,"app.Screen",20480,NULL,1,&screen_handle,CPU0);
 #endif 
 #if USE_AUDIO == 1
     // xTaskCreatePinnedToCore(task_audio,"app._audio",20480,NULL,1,&lvgl_handle,CPU0);
-    xTaskCreatePinnedToCore(Audio_task,"app.audio",20480,NULL,1,&lvgl_handle,CPU0);
+    xTaskCreatePinnedToCore(Audio_task,"app.audio",20480,NULL,1,&audio_handle,CPU1);
 #endif 
    
 }
