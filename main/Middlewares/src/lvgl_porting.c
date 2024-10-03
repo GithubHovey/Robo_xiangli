@@ -4,6 +4,7 @@
 #include "esp_timer.h"
 #include "../../Drivers/include/ST7701S.h"
 #include "lvgl.h"
+#include <string.h>
 #define LVGL_TICK_PERIOD_MS     20
 static const char* TAG_lvgl_porting = "[Middleware-lvgl_porting]";
 #ifdef LVGL_V8
@@ -86,6 +87,8 @@ void Enable_lvgl_for_screen(void * src_obj)
     lv_display_set_buffers(display, buf1, buf2, LCD_H_RES * LCD_V_RES* sizeof(lv_color_t), LV_DISPLAY_RENDER_MODE_FULL);
     lv_display_set_flush_cb(display, lvgl_flush_cb);
 
+    // lv_display_set_rotation(display, LV_DISPLAY_ROTATION_180);
+
     ESP_LOGI(TAG_lvgl_porting, "Install LVGL tick timer");
     // Tick interface for LVGL (using esp_timer to generate 2ms periodic event)
     const esp_timer_create_args_t lvgl_tick_timer_args = {
@@ -99,8 +102,26 @@ void Enable_lvgl_for_screen(void * src_obj)
 }
 static void lvgl_flush_cb(lv_display_t * display, const lv_area_t * area, void * px_map)
 {
-    flush_color(driver, area->x1, area->y1, area->x2 + 1, area->y2 + 1, px_map);
+    // // 获取缓冲区信息
+    // lv_coord_t buf_width = lv_area_get_width(area);
+    // lv_coord_t buf_height = lv_area_get_height(area);
+    // lv_draw_sw_rotate(area, px_map, buf_width, buf_height, 960,960,LV_DISPLAY_ROTATION_180,LV_COLOR_FORMAT_RGB565);
+    // lv_display_rotate_area(display, area);
+
+    // int start = 0;
+    // int end = 480*480 - 1;
+    // uint16_t *p = (uint16_t*)px_map;
+    // while (start < end) {
+    //     uint16_t temp = p[start];
+    //     p[start] = p[end];
+    //     p[end] = temp;
+
+    //     start++;
+    //     end--;
+    // }
+    flush_color(driver, area->x1, area->y1, area->x2 + 1, area->y2 + 1, px_map);   
     lv_disp_flush_ready(display);
+    // lv_draw_sw_rotate()
 }
 static void increase_lvgl_tick(void *arg)
 {

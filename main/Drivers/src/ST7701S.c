@@ -646,7 +646,7 @@ void ST7701S_screen_config(ST7701S_handle St7701S_handle)
                 SPI_WriteData(0x00);
                 SPI_WriteData(0x00);
 
-                SPI_WriteComm(0x36);
+                SPI_WriteComm(0x36);//nadctl
                 SPI_WriteData(0x00);
 
                 SPI_WriteComm(0x3A);

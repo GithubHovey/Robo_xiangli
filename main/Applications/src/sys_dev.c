@@ -16,7 +16,7 @@ void Module_init()
     ScreenInit();
 #endif 
 #if USE_AUDIO == 1
-
+    Audio_init();
 #endif 
 #if USE_NETWORK == 1
     NetworkInit();

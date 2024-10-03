@@ -13,69 +13,62 @@
 #define CPU0 0
 #define CPU1 1
 TaskHandle_t lvgl_handle;
-TaskHandle_t screen_handle;
+
 TaskHandle_t audio_handle;
-// void task_audio(void * arg);
+TaskHandle_t network_handle;
+TaskHandle_t main_task_handle;
+void Main_task(void * arg);
+void play_startup_anim(uint32_t playtime);
+void robot_wifi_connect(const char *ssid,const char * passwd);
+
 void AppInit()
 {
 #if USE_SCREEN == 1
     xTaskCreatePinnedToCore(lvgl_task,"app.lvgl",20480,NULL,1,&lvgl_handle,CPU0);
-    // xTaskCreatePinnedToCore(screen_task,"app.Screen",20480,NULL,1,&screen_handle,CPU0);
 #endif 
 #if USE_AUDIO == 1
-    // xTaskCreatePinnedToCore(task_audio,"app._audio",20480,NULL,1,&lvgl_handle,CPU0);
-    xTaskCreatePinnedToCore(Audio_task,"app.audio",20480,NULL,1,&audio_handle,CPU1);
+    xTaskCreatePinnedToCore(Audio_task,"app.audio",10240,NULL,1,&audio_handle,CPU1);
 #endif 
-   
+
+#if USE_NETWORK == 1
+    xTaskCreatePinnedToCore(NetworkTask,"app.network",10240,NULL,1,&network_handle,CPU1);
+#endif 
+    xTaskCreatePinnedToCore(Main_task,"app.main",2048,NULL,1,&main_task_handle,CPU1);
 }
+void Main_task(void * arg)
+{
+    const char* tag = pcTaskGetName(xTaskGetCurrentTaskHandle());
+    ESP_LOGI(tag, "%s is created.",tag);
+    play_startup_anim(7000);
+    vTaskDelay(7000);
+    robot_wifi_connect("Archaludon","20220419");
+    for(;;)
+    {
+        vTaskDelay(10);
+    }
+}
+void play_startup_anim(uint32_t playtime)
+{
+    GUI_cmd tx_gui_cmd = {
+        .cmd = START_LOGO,
+        .user_data = &playtime
+    };
+    xQueueSend(GUI_TxPort,&tx_gui_cmd,0);
+    RobotVoicePlay(ROBOT_INFORM);
+}
+void robot_wifi_connect(const char *ssid,const char * passwd)
+{
 
-// #define EXAMPLE_BUFF_SIZE               2048
-// void task_audio(void * arg)
-// {
-//     static const char*  task_name = "app.audio";
-//     ESP_LOGI(task_name, "%s is created.",task_name);
-//     uint8_t *w_buf = (uint8_t *)calloc(1, EXAMPLE_BUFF_SIZE);
-//     assert(w_buf); // Check if w_buf allocation success
-//     MAX98357_Init();
-//     /* Assign w_buf */
-//     for (int i = 0; i < EXAMPLE_BUFF_SIZE; i += 8) {
-//         // w_buf[i]     = rand()%256;
-//         // w_buf[i + 1] = rand()%256;
-//         // w_buf[i + 2] = rand()%256;
-//         // w_buf[i + 3] = rand()%256;
-//         // w_buf[i + 4] = rand()%256;
-//         // w_buf[i + 5] = rand()%256;
-//         // w_buf[i + 6] = rand()%256;
-//         // w_buf[i + 7] = rand()%256;
-//         w_buf[i]     = 0;
-//         w_buf[i + 1] = 0;
-//         w_buf[i + 2] = 0;
-//         w_buf[i + 3] = 0;
-//         w_buf[i + 4] = 0;
-//         w_buf[i + 5] = 0;
-//         w_buf[i + 6] = 0;
-//         w_buf[i + 7] = 0;
-//     }
-
-//     size_t w_bytes = 20480;
-
-//     /* (Optional) Preload the data before enabling the TX channel, so that the valid data can be transmitted immediately */
-//     while (w_bytes == EXAMPLE_BUFF_SIZE) {
-//         /* Here we load the target buffer repeatedly, until all the DMA buffers are preloaded */
-//         ESP_ERROR_CHECK(i2s_channel_preload_data(tx_chan, w_buf, EXAMPLE_BUFF_SIZE, &w_bytes));
-//     }
-
-//     /* Enable the TX channel */
-//     ESP_ERROR_CHECK(i2s_channel_enable(tx_chan));
-//     while (1) {
-//         /* Write i2s data */
-//         if (i2s_channel_write(tx_chan, w_buf, EXAMPLE_BUFF_SIZE, &w_bytes, 1000) == ESP_OK) {
-//             printf("Write Task: i2s write %d bytes\n", w_bytes);
-//         } else {
-//             printf("Write Task: i2s write failed\n");
-//         }
-//         vTaskDelay(pdMS_TO_TICKS(200));
-//     }
-//     free(w_buf);
-//     vTaskDelete(NULL);
-// }
+    GUI_cmd tx_gui_cmd = {
+        .cmd = WIFI_CONNECT_START,
+        .user_data = ssid
+    };
+    xQueueSend(GUI_TxPort,&tx_gui_cmd,0);
+    if(WiFiConnect(ssid,passwd))
+    {
+        set_wifi_status(WIFI_ONLINE,ssid);
+        printf("wifi connect success:%s\n",ssid);
+    }
+    tx_gui_cmd.cmd = WIFI_CONNECT_FINISH;
+    xQueueSend(GUI_TxPort,&tx_gui_cmd,0);   
+}

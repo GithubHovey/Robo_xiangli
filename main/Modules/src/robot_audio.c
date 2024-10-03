@@ -14,18 +14,17 @@
 #include "periph_spiffs.h"
 #include "board.h"
 static const char *TAG = "Audio";
-
-void Audio_task(void *args)
+static audio_pipeline_handle_t pipeline;
+static audio_element_handle_t spiffs_stream_reader, i2s_stream_writer, mp3_decoder;
+static esp_periph_set_handle_t set;
+void Audio_init()
 {
-    audio_pipeline_handle_t pipeline;
-    audio_element_handle_t spiffs_stream_reader, i2s_stream_writer, mp3_decoder;
-
     esp_log_level_set("*", ESP_LOG_WARN);
     esp_log_level_set(TAG, ESP_LOG_INFO);
 
     // Initialize peripherals management
     esp_periph_config_t periph_cfg = DEFAULT_ESP_PERIPH_SET_CONFIG();
-    esp_periph_set_handle_t set = esp_periph_set_init(&periph_cfg);
+    set = esp_periph_set_init(&periph_cfg);
 
     ESP_LOGI(TAG, "[ 1 ] Mount spiffs");
     // Initialize Spiffs peripheral
@@ -81,10 +80,39 @@ void Audio_task(void *args)
     const char *link_tag[3] = {"spiffs", "mp3", "i2s"};
     audio_pipeline_link(pipeline, &link_tag[0], 3);
 
-    ESP_LOGI(TAG, "[3.6] Set up  uri (file as spiffs, mp3 as mp3 decoder, and default output is i2s)");
-    audio_element_set_uri(spiffs_stream_reader, "/spiffs/start.mp3");
+    // ESP_LOGI(TAG, "[3.6] Set up  uri (file as spiffs, mp3 as mp3 decoder, and default output is i2s)");
+    // audio_element_set_uri(spiffs_stream_reader, "/spiffs/start.mp3");
 
-    ESP_LOGI(TAG, "[ 4 ] Set up  event listener");
+
+}
+/**
+* @brief  
+* @param  
+* @return 
+*/
+void RobotVoicePlay(unsigned char mp3_numb)
+{
+    switch (mp3_numb)
+    {
+    case ROBOT_INFORM:
+        esp_err_t ret = audio_element_set_uri(spiffs_stream_reader, "/spiffs/start.mp3");
+        if (ret != ESP_OK) {
+            ESP_LOGE(TAG, "Failed to set URI: %d", ret);
+        }
+        audio_pipeline_run(pipeline);
+        break;
+    
+    default:
+        ESP_LOGE(TAG, "Invalid mp3 file: %d", mp3_numb);
+        break;
+    }   
+}
+
+void Audio_task(void *args)
+{
+    const char* tag = pcTaskGetName(xTaskGetCurrentTaskHandle());
+    ESP_LOGI(tag, "%s is created.",tag);
+        ESP_LOGI(TAG, "[ 4 ] Set up  event listener");
     audio_event_iface_cfg_t evt_cfg = AUDIO_EVENT_IFACE_DEFAULT_CFG();
     audio_event_iface_handle_t evt = audio_event_iface_init(&evt_cfg);
 
@@ -94,8 +122,8 @@ void Audio_task(void *args)
     ESP_LOGI(TAG, "[4.2] Listening event from peripherals");
     audio_event_iface_set_listener(esp_periph_set_get_event_iface(set), evt);
 
-    ESP_LOGI(TAG, "[ 5 ] Start audio_pipeline");
-    audio_pipeline_run(pipeline);
+    // ESP_LOGI(TAG, "[ 5 ] Start audio_pipeline");
+    // audio_pipeline_run(pipeline);
 
     ESP_LOGI(TAG, "[ 6 ] Listen for all pipeline events");
     while (1) {

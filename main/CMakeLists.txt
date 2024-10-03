@@ -2,11 +2,13 @@ file(GLOB DRIVER_SRCS "./Drivers/src/*.c")
 file(GLOB MIDDLEWARE_SRCS "./Middlewares/src/*.c")
 file(GLOB MODULE_SRCS "./Modules/src/*.c")
 file(GLOB APPLICATION_SRCS "./Applications/src/*.c")
+file(GLOB PICTURE_SRCS "./picture/*.c")
 idf_component_register(SRCS "main.c"
                             ${DRIVER_SRCS}
                             ${MIDDLEWARE_SRCS}
                             ${MODULE_SRCS}
                             ${APPLICATION_SRCS}
+                            ${PICTURE_SRCS}
                     INCLUDE_DIRS    "./Drivers/include"
                                     "./Middlewares/include"
                                     "./Modules/include"
