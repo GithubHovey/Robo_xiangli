@@ -93,6 +93,7 @@ ST7701S_handle ST7701S_newObject()
             .flags.pclk_active_neg = false,
         },
         .flags.fb_in_psram = true, // allocate frame buffer in PSRAM
+        .bounce_buffer_size_px = 5*LCD_H_RES*2
     };   
     ESP_ERROR_CHECK(esp_lcd_new_rgb_panel(&st7701s_handle->panel_config, &st7701s_handle->panel_handle));
 

@@ -87,7 +87,8 @@ void GUI_module_init(uint8_t GUI_MODULES)
     }else{
         GUI_modules[GUI_MODULES] = lv_image_create(lv_layer_top());
     }
-    lv_obj_set_style_bg_color(GUI_modules[GUI_MODULES] , lv_color_black(), 0);  
+    // lv_obj_set_style_bg_color(GUI_modules[GUI_MODULES] , lv_color_black(), 0); 
+    lv_obj_set_style_bg_color(GUI_modules[GUI_MODULES] , lv_color_make(0x00,0x00,0x00) , 0); 
     lv_obj_set_style_bg_opa(GUI_modules[GUI_MODULES], 255, LV_PART_MAIN);
     lv_obj_set_size(GUI_modules[GUI_MODULES], LCD_H_RES, LCD_V_RES);
     lv_obj_align(GUI_modules[GUI_MODULES], LV_ALIGN_CENTER, 0, 0);   

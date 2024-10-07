@@ -24,14 +24,14 @@ void robot_wifi_connect(const char *ssid,const char * passwd);
 void AppInit()
 {
 #if USE_SCREEN == 1
-    xTaskCreatePinnedToCore(lvgl_task,"app.lvgl",20480,NULL,1,&lvgl_handle,CPU0);
+    xTaskCreatePinnedToCore(lvgl_task,"app.lvgl",16384,NULL,1,&lvgl_handle,CPU0);
 #endif 
 #if USE_AUDIO == 1
-    xTaskCreatePinnedToCore(Audio_task,"app.audio",10240,NULL,1,&audio_handle,CPU1);
+    xTaskCreatePinnedToCore(Audio_task,"app.audio",8192,NULL,1,&audio_handle,CPU1);
 #endif 
 
 #if USE_NETWORK == 1
-    xTaskCreatePinnedToCore(NetworkTask,"app.network",10240,NULL,1,&network_handle,CPU1);
+    xTaskCreatePinnedToCore(NetworkTask,"app.network",4096,NULL,1,&network_handle,CPU1);
 #endif 
     xTaskCreatePinnedToCore(Main_task,"app.main",2048,NULL,1,&main_task_handle,CPU1);
 }
