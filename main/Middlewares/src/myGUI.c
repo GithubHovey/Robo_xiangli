@@ -160,6 +160,8 @@ void BootlogoExec(void * _obj, int v)
 void BootLogo_complete_cb(lv_anim_t * a)
 {
     Expression_display();
+    printf("expression:\n");
+    heap_caps_print_heap_info(MALLOC_CAP_8BIT);
 }
 /**
 * @brief  初始化表情相关的lvgl部件

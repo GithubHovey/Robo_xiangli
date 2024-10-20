@@ -27,6 +27,7 @@ void NetworkTask(void *args)
     for(;;)
     {
         robot_net_status.fans_numb[1] = robot_net_status.fans_numb[0]; 
+        printf("network.task:\n");
         heap_caps_print_heap_info(MALLOC_CAP_8BIT);
         // ESP_LOGW(MODULE_NETWORK, "DRAM remain: %zu",heap_caps_get_free_size(MALLOC_CAP_8BIT));
         // ESP_LOGW(MODULE_NETWORK, "mem-total remain: %lu",esp_get_free_heap_size());

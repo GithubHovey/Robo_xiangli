@@ -72,6 +72,8 @@ void lvgl_task(void * arg)
                 case FANS_REPORT:
                     uint32_t *data = (uint32_t *)(rx_gui_cmd.user_data);
                     FansReport(data[0],data[1]);
+                    printf("fans.task:\n");
+                    heap_caps_print_heap_info(MALLOC_CAP_8BIT);
                     break; 
                 case START_LOGO:
                     BootLogoDisplay(3000);

@@ -24,24 +24,33 @@ void robot_wifi_connect(const char *ssid,const char * passwd);
 void AppInit()
 {
 #if USE_SCREEN == 1
-    xTaskCreatePinnedToCore(lvgl_task,"app.lvgl",16384,NULL,1,&lvgl_handle,CPU0);
+    xTaskCreatePinnedToCore(lvgl_task,"app.lvgl",6144,NULL,1,&lvgl_handle,CPU0);
 #endif 
 #if USE_AUDIO == 1
-    xTaskCreatePinnedToCore(Audio_task,"app.audio",8192,NULL,1,&audio_handle,CPU1);
+    xTaskCreatePinnedToCore(Audio_task,"app.audio",3072,NULL,1,&audio_handle,CPU1);
 #endif 
 
 #if USE_NETWORK == 1
-    xTaskCreatePinnedToCore(NetworkTask,"app.network",4096,NULL,1,&network_handle,CPU1);
+    xTaskCreatePinnedToCore(NetworkTask,"app.network",3584,NULL,1,&network_handle,CPU1);
 #endif 
-    xTaskCreatePinnedToCore(Main_task,"app.main",4096,NULL,1,&main_task_handle,CPU1);
+    xTaskCreatePinnedToCore(Main_task,"app.main",2560,NULL,1,&main_task_handle,CPU1);
 }
 void Main_task(void * arg)
 {
     const char* tag = pcTaskGetName(xTaskGetCurrentTaskHandle());
+    static char InfoBuffer[1024] = {0}; 
     ESP_LOGI(tag, "%s is created.",tag);
     play_startup_anim(7000);
     vTaskDelay(7000);
     robot_wifi_connect("Archaludon","20220419");
+    printf("wifi_connect:\n");
+    heap_caps_print_heap_info(MALLOC_CAP_8BIT);
+    while (1) {
+        vTaskList((char *) &InfoBuffer);
+        printf("任务名      任务状态 优先级   剩余栈 任务序号\r\n");
+        printf("\r\n%s\r\n", InfoBuffer);
+        vTaskDelay(2000);
+    } 
     for(;;)
     {
         vTaskDelay(10);
@@ -54,6 +63,8 @@ void play_startup_anim(uint32_t playtime)
         .user_data = &playtime
     };
     xQueueSend(GUI_TxPort,&tx_gui_cmd,0);
+    printf("startlogo:\n");
+    heap_caps_print_heap_info(MALLOC_CAP_8BIT);
     #if USE_AUDIO == 1
     RobotVoicePlay(ROBOT_INFORM);
     #endif
