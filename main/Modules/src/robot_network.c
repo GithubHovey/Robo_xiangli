@@ -7,7 +7,7 @@
 #include "lwip/sys.h"
 static const char* MODULE_NETWORK = "[Module-network]";
 // #define MAX_HTTP_RECV_BUFFER 512
-#define MAX_HTTP_OUTPUT_BUFFER 1024
+#define MAX_HTTP_OUTPUT_BUFFER 512
 static char output_buffer[MAX_HTTP_OUTPUT_BUFFER + 1] = {0};   // Buffer to store response of http request
 static robot_network_status robot_net_status = {
     .Wifi_online_status = 0,
@@ -26,7 +26,12 @@ void NetworkTask(void *args)
     static GUI_cmd tx_gui_cmd;
     for(;;)
     {
-        robot_net_status.fans_numb[1] = robot_net_status.fans_numb[0];
+        robot_net_status.fans_numb[1] = robot_net_status.fans_numb[0]; 
+        heap_caps_print_heap_info(MALLOC_CAP_8BIT);
+        // ESP_LOGW(MODULE_NETWORK, "DRAM remain: %zu",heap_caps_get_free_size(MALLOC_CAP_8BIT));
+        // ESP_LOGW(MODULE_NETWORK, "mem-total remain: %lu",esp_get_free_heap_size());
+        // ESP_LOGW(MODULE_NETWORK, "mem-largest_free_block: %zu",heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
+        // ESP_LOGW(MODULE_NETWORK, "mem minimum_free_heap_size: %lu",esp_get_minimum_free_heap_size());
         FansUpdate();
         if(robot_net_status.fans_numb[0]!=robot_net_status.fans_numb[1])
         {
@@ -49,6 +54,7 @@ uint8_t gei_wifi_status()
 void FansUpdate(void)
 {
     static cJSON *rx_json,*data,*follower;
+    
     if(gei_wifi_status() == WIFI_ONLINE)
     {
         // Declare local_response_buffer with size (MAX_HTTP_OUTPUT_BUFFER + 1) to prevent out of bound access when
@@ -82,7 +88,7 @@ void FansUpdate(void)
                 esp_http_client_get_content_length(client));
                 // ESP_LOG_BUFFER_HEX(MODULE_NETWORK, output_buffer, data_read);
                 // ESP_LOGW(MODULE_NETWORK,"%s",output_buffer);
-                rx_json = cJSON_Parse(output_buffer);
+                rx_json = cJSON_Parse(output_buffer);//malloc
                 if(rx_json == NULL)
                 {
                     ESP_LOGE(MODULE_NETWORK, "json parse fail");
@@ -107,7 +113,12 @@ void FansUpdate(void)
         }
     }
 finish:
-    cJSON_Delete(rx_json);
+    if(rx_json != NULL)
+    {
+        cJSON_Delete(rx_json);
+        rx_json = NULL;
+    }
+    heap_caps_print_heap_info(MALLOC_CAP_8BIT);    
     esp_http_client_close(client);
     esp_http_client_cleanup(client);
     }  

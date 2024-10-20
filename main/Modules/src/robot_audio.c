@@ -1,3 +1,4 @@
+#if 1
 #include "../include/robot_audio.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -192,3 +193,4 @@ void Audio_task(void *args)
     audio_element_deinit(mp3_decoder);
     esp_periph_set_destroy(set);
 }
+#endif

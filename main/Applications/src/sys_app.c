@@ -33,7 +33,7 @@ void AppInit()
 #if USE_NETWORK == 1
     xTaskCreatePinnedToCore(NetworkTask,"app.network",4096,NULL,1,&network_handle,CPU1);
 #endif 
-    xTaskCreatePinnedToCore(Main_task,"app.main",2048,NULL,1,&main_task_handle,CPU1);
+    xTaskCreatePinnedToCore(Main_task,"app.main",4096,NULL,1,&main_task_handle,CPU1);
 }
 void Main_task(void * arg)
 {
@@ -54,7 +54,9 @@ void play_startup_anim(uint32_t playtime)
         .user_data = &playtime
     };
     xQueueSend(GUI_TxPort,&tx_gui_cmd,0);
+    #if USE_AUDIO == 1
     RobotVoicePlay(ROBOT_INFORM);
+    #endif
 }
 void robot_wifi_connect(const char *ssid,const char * passwd)
 {

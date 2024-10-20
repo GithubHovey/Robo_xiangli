@@ -3,8 +3,8 @@
 #include "Middlewares/include/myGUI.h"
 void app_main(void)
 {
+    vTaskDelay(1000);
     Module_init();
-    AppInit();
-    
+    AppInit();    
 }
 
