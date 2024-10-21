@@ -24,7 +24,7 @@ void robot_wifi_connect(const char *ssid,const char * passwd);
 void AppInit()
 {
 #if USE_SCREEN == 1
-    xTaskCreatePinnedToCore(lvgl_task,"app.lvgl",6144,NULL,1,&lvgl_handle,CPU0);
+    xTaskCreatePinnedToCore(lvgl_task,"app.lvgl",6144,NULL,2,&lvgl_handle,CPU0);
 #endif 
 #if USE_AUDIO == 1
     xTaskCreatePinnedToCore(Audio_task,"app.audio",3072,NULL,1,&audio_handle,CPU1);
@@ -43,12 +43,13 @@ void Main_task(void * arg)
     play_startup_anim(7000);
     vTaskDelay(7000);
     robot_wifi_connect("Archaludon","20220419");
-    printf("wifi_connect:\n");
-    heap_caps_print_heap_info(MALLOC_CAP_8BIT);
+    
     while (1) {
         vTaskList((char *) &InfoBuffer);
+        printf("--------------\n");
         printf("任务名      任务状态 优先级   剩余栈 任务序号\r\n");
         printf("\r\n%s\r\n", InfoBuffer);
+        heap_caps_print_heap_info(MALLOC_CAP_8BIT);
         vTaskDelay(2000);
     } 
     for(;;)

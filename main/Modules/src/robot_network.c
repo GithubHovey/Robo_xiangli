@@ -27,8 +27,8 @@ void NetworkTask(void *args)
     for(;;)
     {
         robot_net_status.fans_numb[1] = robot_net_status.fans_numb[0]; 
-        printf("network.task:\n");
-        heap_caps_print_heap_info(MALLOC_CAP_8BIT);
+        // printf("network.task:\n");
+        // heap_caps_print_heap_info(MALLOC_CAP_8BIT);
         // ESP_LOGW(MODULE_NETWORK, "DRAM remain: %zu",heap_caps_get_free_size(MALLOC_CAP_8BIT));
         // ESP_LOGW(MODULE_NETWORK, "mem-total remain: %lu",esp_get_free_heap_size());
         // ESP_LOGW(MODULE_NETWORK, "mem-largest_free_block: %zu",heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
@@ -119,7 +119,7 @@ finish:
         cJSON_Delete(rx_json);
         rx_json = NULL;
     }
-    heap_caps_print_heap_info(MALLOC_CAP_8BIT);    
+    // heap_caps_print_heap_info(MALLOC_CAP_8BIT);    
     esp_http_client_close(client);
     esp_http_client_cleanup(client);
     }  
