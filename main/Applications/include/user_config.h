@@ -4,4 +4,7 @@
 #define USE_SCREEN  1
 #define USE_AUDIO   1
 #define USE_NETWORK 1
+#if USE_AUDIO == 1
+    #define USE_ASR 1
+#endif
 #endif

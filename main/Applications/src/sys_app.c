@@ -34,6 +34,12 @@ void AppInit()
     xTaskCreatePinnedToCore(NetworkTask,"app.network",3584,NULL,1,&network_handle,CPU1);
 #endif 
     xTaskCreatePinnedToCore(Main_task,"app.main",2560,NULL,1,&main_task_handle,CPU1);
+#ifdef USE_ASR
+    #if USE_ASR == 1
+    xTaskCreatePinnedToCore(&detect_Task, "app.detect", 4 * 1024, NULL, 1, NULL, CPU1);
+    xTaskCreatePinnedToCore(&HearingTask, "app.feed", 4 * 1024, NULL, 1, NULL, CPU1);
+    #endif
+#endif
 }
 void Main_task(void * arg)
 {
@@ -50,7 +56,7 @@ void Main_task(void * arg)
         printf("任务名      任务状态 优先级   剩余栈 任务序号\r\n");
         printf("\r\n%s\r\n", InfoBuffer);
         heap_caps_print_heap_info(MALLOC_CAP_8BIT);
-        vTaskDelay(2000);
+        vTaskDelay(5000);
     } 
     for(;;)
     {

@@ -12,13 +12,16 @@
 
 void Module_init()
 {
+#if USE_AUDIO == 1
+    Audio_init();
+    HearingInit();
+#endif 
 #if USE_SCREEN == 1
     ScreenInit();
 #endif 
-#if USE_AUDIO == 1
-    Audio_init();
-#endif 
+
 #if USE_NETWORK == 1
     NetworkInit();
 #endif
+    
 }

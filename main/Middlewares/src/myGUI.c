@@ -333,7 +333,7 @@ void FansReport(uint32_t _fans_numb,uint32_t _fans_numb_last)
     lv_label_set_text(my_id, BILI_ID);
     lv_obj_set_pos(my_id, 240, 260);
     lv_obj_set_style_transform_rotation(my_id,1800,LV_PART_MAIN);
-    lv_obj_set_style_text_font(my_id,&lv_font_montserrat_30,LV_PART_MAIN);
+    lv_obj_set_style_text_font(my_id,&lv_font_montserrat_14,LV_PART_MAIN);
     lv_obj_set_style_text_color(my_id, lv_color_white(), 0);
 
     /*A roller on the left with left aligned text, and custom width*/

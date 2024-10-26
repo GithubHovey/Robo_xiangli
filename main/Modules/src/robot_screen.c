@@ -26,16 +26,6 @@ void ScreenInit()
     GUI_TxPort = xQueueCreate(4, sizeof(GUI_cmd));
     ESP_LOGI(MODULE_SCREEN, "Screen init success.");
 }
-void screen_task(void *args)
-{
-    const char* tag = pcTaskGetName(xTaskGetCurrentTaskHandle());
-    ESP_LOGI(tag, "%s is created.",tag);
-    
-    for(;;)
-    {
-        vTaskDelay(5);
-    }
-}
 void lvgl_task(void * arg)
 {
     const char* tag = pcTaskGetName(xTaskGetCurrentTaskHandle());
