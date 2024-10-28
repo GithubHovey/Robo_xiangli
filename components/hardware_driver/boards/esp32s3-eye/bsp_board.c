@@ -46,6 +46,7 @@ static int s_bits_per_chan = 16;
 
 #if ESP_IDF_VERSION >= ESP_IDF_VERSION_VAL(5, 0, 0)
 static i2s_chan_handle_t                rx_handle = NULL;        // I2S rx channel handler
+static i2s_chan_handle_t                tx_handle = NULL;        // I2S rx channel handler
 #endif
 
 static esp_err_t bsp_i2s_init(i2s_port_t i2s_num, uint32_t sample_rate, int channel_format, int bits_per_chan)
@@ -57,7 +58,7 @@ static esp_err_t bsp_i2s_init(i2s_port_t i2s_num, uint32_t sample_rate, int chan
 
     ret_val |= i2s_new_channel(&chan_cfg, NULL, &rx_handle);
     i2s_std_config_t std_cfg = I2S_CONFIG_DEFAULT(16000, I2S_SLOT_MODE_MONO, 32);
-    std_cfg.slot_cfg.slot_mask = I2S_STD_SLOT_LEFT;
+    std_cfg.slot_cfg.slot_mask = I2S_STD_SLOT_BOTH;
     // std_cfg.clk_cfg.mclk_multiple = EXAMPLE_MCLK_MULTIPLE;   //The default is I2S_MCLK_MULTIPLE_256. If not using 24-bit data width, 256 should be enough
     ret_val |= i2s_channel_init_std_mode(rx_handle, &std_cfg);
     ret_val |= i2s_channel_enable(rx_handle);
@@ -122,7 +123,7 @@ int bsp_get_feed_channel(void)
 
 esp_err_t bsp_board_init(uint32_t sample_rate, int channel_format, int bits_per_chan)
 {
-    bsp_i2s_init(I2S_NUM_1, 16000, 2, 32);
+    bsp_i2s_init(I2S_NUM_0, 16000, 2, 32);
 
     return ESP_OK;
 }

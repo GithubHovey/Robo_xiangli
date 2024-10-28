@@ -33,11 +33,11 @@ void AppInit()
 #if USE_NETWORK == 1
     xTaskCreatePinnedToCore(NetworkTask,"app.network",3584,NULL,1,&network_handle,CPU1);
 #endif 
-    xTaskCreatePinnedToCore(Main_task,"app.main",2560,NULL,1,&main_task_handle,CPU1);
+    xTaskCreatePinnedToCore(Main_task,"app.main",4096,NULL,1,&main_task_handle,CPU1);
 #ifdef USE_ASR
     #if USE_ASR == 1
-    xTaskCreatePinnedToCore(&detect_Task, "app.detect", 4 * 1024, NULL, 1, NULL, CPU1);
-    xTaskCreatePinnedToCore(&HearingTask, "app.feed", 4 * 1024, NULL, 1, NULL, CPU1);
+    // xTaskCreatePinnedToCore(&detect_Task, "app.detect", 4 * 1024, NULL, 1, NULL, CPU1);
+    // xTaskCreatePinnedToCore(&HearingTask, "app.feed", 4 * 1024, NULL, 1, NULL, CPU1);
     #endif
 #endif
 }

@@ -23,5 +23,8 @@ void Module_init()
 #if USE_NETWORK == 1
     NetworkInit();
 #endif
+#if USE_VOICE == 1
+    RobotVoiceInit();
+#endif
     
 }

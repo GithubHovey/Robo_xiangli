@@ -9,9 +9,12 @@ idf_component_register(SRCS "main.c"
                             ${MODULE_SRCS}
                             ${APPLICATION_SRCS}
                             ${PICTURE_SRCS}
+                            "../tone/audio_tone_uri.c"
                     INCLUDE_DIRS    "./Drivers/include"
                                     "./Middlewares/include"
                                     "./Modules/include"
                                     "./Applications/include"
+                                    "../tone"
                                     )
-spiffs_create_partition_image(storage ../spiffs_image FLASH_IN_PROJECT)
+# spiffs_create_partition_image(storage ../spiffs_image FLASH_IN_PROJECT)
+
