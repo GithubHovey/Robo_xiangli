@@ -39,24 +39,10 @@ void lvgl_task(void * arg)
             switch(rx_gui_cmd.cmd)
             {
                 case WIFI_CONNECT_START:
-                    LoadingWave_display();
-                    // uint8_t cmd_type = *(uint8_t *)(rx_gui_cmd.user_data);
-                    // switch(cmd_type)
-                    // {
-                    //     case 0x01:
-                    //         LoadingWave_display();
-                    //         break;
-                    //     case 0x00:
-                    //         Expression_display();
-                    //         WiFiStatuReport("Archaludon");   
-                    //         break;
-                    //     default:
-                    //         ESP_LOGW(tag, "[WIFI_CONNECT]:lvgl cmd error");
-                    //         break;
-                    // }
+                    // LoadingWave_display();
                     break;
                 case WIFI_CONNECT_FINISH:
-                    Expression_display();
+                    // Expression_display();
                     WiFiStatuReport((char *)(rx_gui_cmd.user_data));
                     break;
                 case FANS_REPORT:
@@ -70,6 +56,12 @@ void lvgl_task(void * arg)
                     break;
                 case MAIN_INTERFACE:
                     break;
+                case LOADING_ANIMATION_START:
+                    LoadingWave_display();
+                    break;
+                case LOADING_ANIMATION_FINISH:
+                    Expression_display();
+                    break;
                 default:
                     break;
             }
@@ -77,4 +69,12 @@ void lvgl_task(void * arg)
         vTaskDelay(5);
         lv_timer_handler();
     }
+}
+void GUICtrl(uint8_t _cmd,void *_user_data)
+{
+    GUI_cmd tx_gui_cmd = {
+        .cmd = _cmd,
+        .user_data = _user_data
+    };
+    xQueueSend(GUI_TxPort,&tx_gui_cmd,0);
 }

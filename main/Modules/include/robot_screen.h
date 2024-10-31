@@ -24,7 +24,9 @@ enum GUI_CMD{
     WIFI_CONNECT_FINISH,
     FANS_REPORT,
     START_LOGO,
-    MAIN_INTERFACE
+    MAIN_INTERFACE,
+    LOADING_ANIMATION_START,
+    LOADING_ANIMATION_FINISH
 };
 typedef struct _GUI_cmd{
     uint8_t cmd;
@@ -37,4 +39,5 @@ extern QueueHandle_t GUI_TxPort;
 void ScreenInit();
 // void screen_task(void *args);
 void lvgl_task(void * arg);
+void GUICtrl(uint8_t _cmd,void *_user_data);
 #endif

@@ -60,10 +60,10 @@
 #define PIN_NUM_DATA9          10 // G4
 #define PIN_NUM_DATA10         9  // G5
 #define PIN_NUM_DATA11         3  // R1
-#define PIN_NUM_DATA12         15 // R2
-#define PIN_NUM_DATA13         16 // R3
-#define PIN_NUM_DATA14         17 // R4
-#define PIN_NUM_DATA15         18 // R5
+#define PIN_NUM_DATA12         16 // R2
+#define PIN_NUM_DATA13         17 // R3
+#define PIN_NUM_DATA14         18 // R4
+#define PIN_NUM_DATA15         8 // R5
 #define PIN_NUM_DISP_EN        -1
 #endif
 

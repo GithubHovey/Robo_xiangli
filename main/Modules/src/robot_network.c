@@ -6,6 +6,7 @@
 #include "lwip/err.h"
 #include "lwip/sys.h"
 static const char* MODULE_NETWORK = "[Module-network]";
+QueueHandle_t NetworkQueueHandle;
 // #define MAX_HTTP_RECV_BUFFER 512
 #define MAX_HTTP_OUTPUT_BUFFER 512
 static char output_buffer[MAX_HTTP_OUTPUT_BUFFER + 1] = {0};   // Buffer to store response of http request
@@ -16,6 +17,7 @@ static robot_network_status robot_net_status = {
 void NetworkInit()
 {
     Wifi_Init();
+    NetworkQueueHandle = xQueueCreate(4, sizeof(GUI_cmd));
 }
 int WiFiConnect(const char *ssid,const char * passwd)
 {
@@ -23,24 +25,37 @@ int WiFiConnect(const char *ssid,const char * passwd)
 }
 void NetworkTask(void *args)
 {
+    static Network_cmd rx_network_cmd;
     static GUI_cmd tx_gui_cmd;
     for(;;)
     {
-        robot_net_status.fans_numb[1] = robot_net_status.fans_numb[0]; 
-        // printf("network.task:\n");
-        // heap_caps_print_heap_info(MALLOC_CAP_8BIT);
-        // ESP_LOGW(MODULE_NETWORK, "DRAM remain: %zu",heap_caps_get_free_size(MALLOC_CAP_8BIT));
-        // ESP_LOGW(MODULE_NETWORK, "mem-total remain: %lu",esp_get_free_heap_size());
-        // ESP_LOGW(MODULE_NETWORK, "mem-largest_free_block: %zu",heap_caps_get_largest_free_block(MALLOC_CAP_8BIT));
-        // ESP_LOGW(MODULE_NETWORK, "mem minimum_free_heap_size: %lu",esp_get_minimum_free_heap_size());
-        FansUpdate();
-        if(robot_net_status.fans_numb[0]!=robot_net_status.fans_numb[1])
+        if(xQueueReceive(NetworkQueueHandle,&rx_network_cmd,portMAX_DELAY) == pdPASS)
         {
-            tx_gui_cmd.cmd = FANS_REPORT;
-            tx_gui_cmd.user_data = &robot_net_status.fans_numb;
-            xQueueSend(GUI_TxPort,&tx_gui_cmd,0);
+            switch(rx_network_cmd.cmd)
+            {
+                case NETWORK_CMD_WIFI_CONNECT:
+                    if(gei_wifi_status()!=WIFI_ONLINE)
+                    {
+                        robot_wifi_connect("Archaludon","20220419");
+                    }
+                    break;
+                case NETWORK_CMD_FANS_REPORT:
+                    break;
+                case NETWORK_CMD_PC_CTRL:
+                    break;
+                default:
+                    break;
+            }
         }
-        vTaskDelay(10000);
+        // robot_net_status.fans_numb[1] = robot_net_status.fans_numb[0]; 
+        // FansUpdate();
+        // if(robot_net_status.fans_numb[0]!=robot_net_status.fans_numb[1])
+        // {
+        //     tx_gui_cmd.cmd = FANS_REPORT;
+        //     tx_gui_cmd.user_data = &robot_net_status.fans_numb;
+        //     xQueueSend(GUI_TxPort,&tx_gui_cmd,0);
+        // }
+        // vTaskDelay(10000);
     }
 }
 void set_wifi_status(uint8_t _status,const char * _ssid)
@@ -123,4 +138,34 @@ finish:
     esp_http_client_close(client);
     esp_http_client_cleanup(client);
     }  
+}
+int robot_wifi_connect(const char *ssid,const char * passwd)
+{
+
+    // GUI_cmd tx_gui_cmd = {
+    //     .cmd = WIFI_CONNECT_START,
+    //     .user_data = ssid
+    // };
+    // xQueueSend(GUI_TxPort,&tx_gui_cmd,0);
+    int ret = WiFiConnect(ssid,passwd);
+    if(ret)
+    {
+        set_wifi_status(WIFI_ONLINE,ssid);
+        printf("wifi connect success:%s\n",ssid);
+        // GUI_cmd tx_gui_cmd = {
+        //     .cmd = WIFI_CONNECT_FINISH,
+        //     .user_data = ssid
+        // };
+        // xQueueSend(GUI_TxPort,&tx_gui_cmd,0);
+        GUICtrl(WIFI_CONNECT_FINISH,ssid);
+    }
+    return ret;
+}
+void NetworkCtrl(uint8_t _cmd,void *_user_data)
+{
+    Network_cmd tx_gui_cmd = {
+        .cmd = _cmd,
+        .user_data = _user_data
+    };
+    xQueueSend(NetworkQueueHandle,&tx_gui_cmd,0);
 }

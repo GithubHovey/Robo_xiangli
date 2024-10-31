@@ -8,8 +8,8 @@
  
 ------------------------------------------------------------------------------*/
 #include "../include/robot_voice.h"
-
-
+#include "../include/robot_network.h"
+#include "../include/robot_screen.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -132,42 +132,6 @@ static esp_audio_handle_t setup_player()
     return player;
 }
 
-#if VOICE2FILE == (true)
-static void voice_2_file(uint8_t *buffer, int len)
-{
-#define MAX_FNAME_LEN (50)
-
-    static FILE *fp = NULL;
-    static int fcnt = 0;
-
-    if (voice_reading) {
-        if (!fp) {
-            if (fp == NULL) {
-                char fname[MAX_FNAME_LEN] = { 0 };
-
-                if (RECORDER_ENC_ENABLE) {
-                    snprintf(fname, MAX_FNAME_LEN - 1, "/sdcard/f%d.amr", fcnt++);
-                } else {
-                    snprintf(fname, MAX_FNAME_LEN - 1, "/sdcard/f%d.pcm", fcnt++);
-                }
-                fp = fopen(fname, "wb");
-                if (!fp) {
-                    ESP_LOGE(TAG, "File open failed");
-                }
-            }
-        }
-        if (len) {
-            fwrite(buffer, len, 1, fp);
-        }
-    } else {
-        if (fp) {
-            ESP_LOGI(TAG, "File closed");
-            fclose(fp);
-            fp = NULL;
-        }
-    }
-}
-#endif /* VOICE2FILE == (true) */
 
 static void voice_read_task(void *args)
 {
@@ -227,6 +191,7 @@ static esp_err_t rec_engine_cb(audio_rec_evt_t *event, void *user_data)
         ESP_LOGI(TAG, "rec_engine_cb - REC_EVENT_WAKEUP_START");
         ESP_LOGI(TAG, "wakeup: vol %f, mod idx %d, word idx %d", wakeup_result->data_volume, wakeup_result->wakenet_model_index, wakeup_result->wake_word_index);
         esp_audio_sync_play(player, tone_uri[TONE_TYPE_DINGDONG], 0);
+        GUICtrl(LOADING_ANIMATION_START,NULL);
         if (voice_reading) {
             int msg = REC_CANCEL;
             if (xQueueSend(rec_q, &msg, 0) != pdPASS) {
@@ -259,9 +224,21 @@ static esp_err_t rec_engine_cb(audio_rec_evt_t *event, void *user_data)
         ESP_LOGI(TAG, "rec_engine_cb - AUDIO_REC_COMMAND_DECT");
         ESP_LOGW(TAG, "command %d, phrase_id %d, prob %f, str: %s"
             , event->type, mn_result->phrase_id, mn_result->prob, mn_result->str);
+        int cmd_ret = 0;
+        switch(mn_result->phrase_id)
+        {
+            case 4://wifi connect
+                NetworkCtrl(NETWORK_CMD_WIFI_CONNECT,NULL);
+                break;
+            case 2://
+                break;
+            default:
+                break;
+        }
         esp_audio_sync_play(player, tone_uri[TONE_TYPE_HAODE], 0);
+        GUICtrl(LOADING_ANIMATION_FINISH,NULL);
     } else {
-        ESP_LOGE(TAG, "Unkown event");
+        ESP_LOGE(TAG, "Unkown event"); 
     }
     return ESP_OK;
 }

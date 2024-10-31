@@ -28,6 +28,15 @@ typedef struct _robot_network_status{
     uint32_t fans_numb[2]; //0 :now 1: last
     char * ssid;
 }robot_network_status;
+enum NETWORK_CMD{
+    NETWORK_CMD_WIFI_CONNECT,
+    NETWORK_CMD_FANS_REPORT,
+    NETWORK_CMD_PC_CTRL
+};
+typedef struct _Network_cmd{
+    uint8_t cmd;
+    void * user_data;
+}Network_cmd;
 /* Variables -----------------------------------------------------------------*/
 
 
@@ -38,4 +47,6 @@ void NetworkTask(void *args);
 void set_wifi_status(uint8_t _status,const char * _ssid);
 uint8_t gei_wifi_status();
 void FansUpdate(void);
+int robot_wifi_connect(const char *ssid,const char * passwd);
+void NetworkCtrl(uint8_t _cmd,void *_user_data);
 #endif

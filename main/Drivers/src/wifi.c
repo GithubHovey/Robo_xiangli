@@ -5,7 +5,6 @@
 #include "esp_event.h"
 #include "nvs_flash.h"
 #include <string.h>
-#if 1
 #define EXAMPLE_ESP_WIFI_SSID      "Archaludon"
 #define EXAMPLE_ESP_WIFI_PASS      "20220419"
 
@@ -130,4 +129,3 @@ static void event_handler(void* arg, esp_event_base_t event_base,
         xEventGroupSetBits(s_wifi_event_group, WIFI_CONNECTED_BIT);
     }
 }
-#endif
