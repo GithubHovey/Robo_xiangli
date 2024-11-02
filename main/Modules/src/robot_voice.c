@@ -28,7 +28,6 @@
 #include "audio_pipeline.h"
 #include "audio_recorder.h"
 #include "audio_thread.h"
-#include "audio_tone_uri.h"
 #include "board.h"
 #include "esp_audio.h"
 #include "filter_resample.h"
@@ -190,8 +189,8 @@ static esp_err_t rec_engine_cb(audio_rec_evt_t *event, void *user_data)
 
         ESP_LOGI(TAG, "rec_engine_cb - REC_EVENT_WAKEUP_START");
         ESP_LOGI(TAG, "wakeup: vol %f, mod idx %d, word idx %d", wakeup_result->data_volume, wakeup_result->wakenet_model_index, wakeup_result->wake_word_index);
-        esp_audio_sync_play(player, tone_uri[TONE_TYPE_DINGDONG], 0);
         GUICtrl(LOADING_ANIMATION_START,NULL);
+        esp_audio_sync_play(player, tone_uri[TONE_TYPE_TONE_WAKE], 0);
         if (voice_reading) {
             int msg = REC_CANCEL;
             if (xQueueSend(rec_q, &msg, 0) != pdPASS) {
@@ -208,7 +207,7 @@ static esp_err_t rec_engine_cb(audio_rec_evt_t *event, void *user_data)
         }
     } else if (AUDIO_REC_VAD_END == event->type) {
         ESP_LOGI(TAG, "rec_engine_cb - REC_EVENT_VAD_STOP");
-        if (voice_reading) {
+        if (voice_reading) { 
             int msg = REC_STOP;
             if (xQueueSend(rec_q, &msg, 0) != pdPASS) {
                 ESP_LOGE(TAG, "rec stop send failed");
@@ -217,6 +216,8 @@ static esp_err_t rec_engine_cb(audio_rec_evt_t *event, void *user_data)
 
     } else if (AUDIO_REC_WAKEUP_END == event->type) {
         ESP_LOGI(TAG, "rec_engine_cb - REC_EVENT_WAKEUP_END");
+        GUICtrl(LOADING_ANIMATION_FINISH,NULL);
+        // esp_audio_sync_play(player, tone_uri[TONE_TYPE_TONE2], 0);
         AUDIO_MEM_SHOW(TAG);
     } else if (AUDIO_REC_COMMAND_DECT <= event->type) {
         recorder_sr_mn_result_t *mn_result = event->event_data;
@@ -225,24 +226,48 @@ static esp_err_t rec_engine_cb(audio_rec_evt_t *event, void *user_data)
         ESP_LOGW(TAG, "command %d, phrase_id %d, prob %f, str: %s"
             , event->type, mn_result->phrase_id, mn_result->prob, mn_result->str);
         int cmd_ret = 0;
+        static int pc_ctrl_cmd = 0;
         switch(mn_result->phrase_id)
         {
-            case 4://wifi connect
+            case 1://wifi connect
                 NetworkCtrl(NETWORK_CMD_WIFI_CONNECT,NULL);
                 break;
-            case 2://
+            case 3://
+                NetworkCtrl(NETWORK_CMD_FANS_REPORT,NULL);
+                break;
+            case 5:
+            case 6:
+                pc_ctrl_cmd = 1;//shutdown
+                NetworkCtrl(NETWORK_CMD_PC_CTRL,(void *)&pc_ctrl_cmd);
+                break;
+            case 7:
+            case 8:
+                pc_ctrl_cmd = 0;//start
+                NetworkCtrl(NETWORK_CMD_PC_CTRL,(void *)&pc_ctrl_cmd);
+                break;
+            case 9:
+                pc_ctrl_cmd = 2;//reboot
+                NetworkCtrl(NETWORK_CMD_PC_CTRL,(void *)&pc_ctrl_cmd);
                 break;
             default:
                 break;
         }
-        esp_audio_sync_play(player, tone_uri[TONE_TYPE_HAODE], 0);
-        GUICtrl(LOADING_ANIMATION_FINISH,NULL);
+        // esp_audio_sync_play(player, tone_uri[TONE_TYPE_TONE2], 0);
+        
     } else {
         ESP_LOGE(TAG, "Unkown event"); 
     }
     return ESP_OK;
 }
-
+void PlayTargetVioce(uint8_t voice_id)
+{
+    if(player)
+    {
+        esp_audio_sync_play(player, tone_uri[voice_id], 0);
+    }else{
+        ESP_LOGE(TAG, "PlayTargetVoice: player in null"); 
+    }
+}
 static int input_cb_for_afe(int16_t *buffer, int buf_sz, void *user_ctx, TickType_t ticks)
 {
     return raw_stream_read(raw_read, (char *)buffer, buf_sz);
@@ -403,7 +428,7 @@ void RobotVoiceInit()
     setup_player();
     start_recorder();
     rec_q = xQueueCreate(3, sizeof(int));
-    audio_thread_create(NULL, "read_task", voice_read_task, NULL, 2 * 1024, 1, true, 1);
+    audio_thread_create(NULL, "read_task", voice_read_task, NULL, 3 * 1024, 1, true, 1);
 }
 
 void RobotCommunicationTask(void* args)

@@ -13,7 +13,8 @@
 #define __ROBOT_VOICE_H
 
 /* Files includes  -----------------------------------------------------------*/
-
+#include <stdint.h>
+#include "audio_tone_uri.h"
 
 /* Defines -------------------------------------------------------------------*/
 
@@ -24,4 +25,5 @@
 /* Functions ----------------------------------------------------------------*/
 void RobotVoiceInit();
 void RobotCommunicationTask(void* args);
+void PlayTargetVioce(uint8_t voice_id);
 #endif

@@ -96,8 +96,11 @@ void GUI_module_init(uint8_t GUI_MODULES)
 void GUI_module_delete(uint8_t GUI_MODULES)
 {
     lv_anim_delete(NULL,animation[GUI_MODULES].animation_exec_func);
-    lv_obj_del(GUI_modules[GUI_MODULES]); 
-    GUI_modules[GUI_MODULES] = NULL;
+    if(GUI_modules[GUI_MODULES] != NULL)
+    {
+        lv_obj_del(GUI_modules[GUI_MODULES]); 
+        GUI_modules[GUI_MODULES] = NULL;
+    }   
 }
 void GUI_init(void)
 {
@@ -170,6 +173,10 @@ void BootLogo_complete_cb(lv_anim_t * a)
 */
 void Expression_display()
 {
+    if(GUI_modules[EXPRESSION] != NULL)
+    {
+        return ;
+    }
     GUI_module_delete(lv_bg_status);
     GUI_module_init(EXPRESSION);
 
@@ -280,21 +287,6 @@ void LoadingWaveExec(void * _obj, int v)
     LoadingWave * obj = _obj;
     for (int i = 0; i < WAVES_NUMB; i++)
     {
-        // int delta_y = 0;
-        // if(i < WAVES_TYPE_NUMB)
-        // {
-        //     delta_y = (i *i*a + WAVE_MIN_HEIGHT);
-        //     delta_y = (delta_y > WAVES_MAX_LENTH/2-10) ? WAVES_MAX_LENTH/2-15 : delta_y;//限制最大值
-        // }
-        // else if(i >= WAVES_TYPE_NUMB)
-        // {
-        //     int symmetry = WAVES_NUMB-1-i;
-        //     delta_y = (symmetry*symmetry*a + WAVE_MIN_HEIGHT);            
-        // }
-        // obj->wave_point[i][0].y = LCD_V_RES/2 - delta_y;
-        // obj->wave_point[i][1].y = LCD_V_RES/2 + delta_y;
-
-
         if(i != WAVES_NUMB - 1)
         {
             obj->wave_point[i][0].y = obj->wave_point[i+1][0].y;
@@ -311,12 +303,13 @@ void LoadingWaveExec(void * _obj, int v)
     }
         
 }
-
+static lv_style_t style[5]; 
 void FansReport(uint32_t _fans_numb,uint32_t _fans_numb_last)
 {
-    static lv_style_t style[5]; 
-    
-    // lv_style_set_bg_opa(&style, LV_OPA_TRANSP);
+    if(GUI_modules[FANREPORT] != NULL) //if fanreport obj exist.
+    {
+        return ;
+    }
     const char * opts = "0\n1\n2\n3\n4\n5\n6\n7\n8\n9";
     GUI_module_init(FANREPORT);
     lv_obj_t * headshot_pic = lv_image_create(GUI_modules[FANREPORT]);
@@ -354,10 +347,10 @@ void FansReport(uint32_t _fans_numb,uint32_t _fans_numb_last)
         lv_roller_set_visible_row_count(roller[i], 1);
         lv_obj_set_pos(roller[i], 340-40*i, 160);
         lv_obj_set_style_transform_rotation(roller[i],1800,LV_PART_MAIN);
-        // lv_roller_set_selected(roller[0], 3, LV_ANIM_ON);
         lv_obj_set_style_anim_time(roller[i], 1200, LV_PART_MAIN);
         lv_roller_set_selected(roller[i], (uint32_t)(_fans_numb_last/pow(10,4-i))%10, LV_ANIM_ON);
     }
+
     lv_anim_init(&animation[FANREPORT].anim);
     lv_anim_set_var(&animation[FANREPORT].anim, NULL);
     lv_anim_set_exec_cb(&animation[FANREPORT].anim, animation[FANREPORT].animation_exec_func); //运行函数
@@ -367,8 +360,8 @@ void FansReport(uint32_t _fans_numb,uint32_t _fans_numb_last)
     lv_anim_set_repeat_delay(&animation[FANREPORT].anim,  animation[FANREPORT].repeat_delay);  //重播延时时间
     lv_anim_set_values(&animation[FANREPORT].anim, animation[FANREPORT].step_value_range[0], animation[FANREPORT].step_value_range[1]); //value范围
     lv_anim_start(&animation[FANREPORT].anim);
+
     now_fans_number = _fans_numb;
-    // lv_obj_add_flag(GUI_modules[FANREPORT], LV_OBJ_FLAG_HIDDEN);
 }
 void FanReportExec(void * _obj, int v)
 {
@@ -383,8 +376,10 @@ void FanReportExec(void * _obj, int v)
 }
 void FanReport_complete_cb(lv_anim_t * a)
 {
-    // lv_obj_add_flag(GUI_modules[FANREPORT], LV_OBJ_FLAG_HIDDEN);
-    // printf("end roller\n");
+    for(int i=0;i<5;i++)
+    {
+        lv_style_reset(&style[i]);
+    }   
     GUI_module_delete(FANREPORT);
 }
 /*wifi status*/

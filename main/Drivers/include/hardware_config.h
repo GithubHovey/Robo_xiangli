@@ -9,9 +9,9 @@
 #define LCD_H_RES              480
 #define LCD_V_RES              480
 /*BUFFER MODE*/
-#define LCD_NUM_FB             2
+#define LCD_NUM_FB             1
 /*rgb_clock*/
-#define LCD_PIXEL_CLOCK_HZ     (18 * 1000 * 1000)
+#define LCD_PIXEL_CLOCK_HZ     (6 * 1000 * 1000)
 /*RGB_PINS*/
 #if MY_BOARD_CONF == 0
 #define SPI_SDA 1

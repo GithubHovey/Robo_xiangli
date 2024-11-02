@@ -31,6 +31,7 @@ typedef struct _robot_network_status{
 enum NETWORK_CMD{
     NETWORK_CMD_WIFI_CONNECT,
     NETWORK_CMD_FANS_REPORT,
+    NETWORK_CMD_FANS_UPDATE,
     NETWORK_CMD_PC_CTRL
 };
 typedef struct _Network_cmd{
@@ -45,8 +46,9 @@ void NetworkInit();
 int WiFiConnect(const char *ssid,const char * passwd);
 void NetworkTask(void *args);
 void set_wifi_status(uint8_t _status,const char * _ssid);
-uint8_t gei_wifi_status();
-void FansUpdate(void);
+uint8_t get_wifi_status();
+uint32_t GetFansNumb(void);
+int PCPowerCtrl(int _cmd);
 int robot_wifi_connect(const char *ssid,const char * passwd);
 void NetworkCtrl(uint8_t _cmd,void *_user_data);
 #endif

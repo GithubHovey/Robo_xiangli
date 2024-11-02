@@ -30,9 +30,9 @@ void AppInit()
 #endif 
 
 #if USE_NETWORK == 1
-    xTaskCreatePinnedToCore(NetworkTask,"app.network",3584,NULL,1,&network_handle,CPU1);
+    xTaskCreatePinnedToCore(NetworkTask,"app.network",3584,NULL,5,&network_handle,CPU1);
 #endif 
-    xTaskCreatePinnedToCore(Main_task,"app.main",4096,NULL,1,&main_task_handle,CPU1);
+    xTaskCreatePinnedToCore(Main_task,"app.main",3584,NULL,5,&main_task_handle,CPU1);
 #ifdef USE_ASR
     #if USE_ASR == 1
     // xTaskCreatePinnedToCore(&detect_Task, "app.detect", 4 * 1024, NULL, 1, NULL, CPU1);
@@ -62,6 +62,10 @@ void Main_task(void * arg)
         printf("=================================================\r\n");
         heap_caps_print_heap_info(MALLOC_CAP_8BIT);
         // gpio_dump_io_configuration(stdout, (1ULL << 8) | (1ULL << 18));
+        if(get_wifi_status()==WIFI_ONLINE)
+        {
+            NetworkCtrl(NETWORK_CMD_FANS_UPDATE,NULL);
+        }        
         vTaskDelay(10000);
     } 
     for(;;)
@@ -81,4 +85,5 @@ void play_startup_anim(uint32_t playtime)
     #if USE_AUDIO == 1
     RobotVoicePlay(ROBOT_INFORM);
     #endif
+    PlayTargetVioce(TONE_TYPE_TONE4);
 }
