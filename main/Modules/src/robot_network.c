@@ -1,5 +1,6 @@
 #include "../include/robot_network.h"
 #include "../../Drivers/include/wifi.h"
+#include "../../Modules/include/robot_voice.h"
 #include "../include/robot_screen.h"
 #include "cJSON.h"
 #include "esp_http_client.h"
@@ -49,6 +50,7 @@ void NetworkTask(void *args)
                         robot_net_status.fans_numb[1] = 0; 
                         robot_net_status.fans_numb[0] = GetFansNumb();
                         GUICtrl(FANS_REPORT,&robot_net_status.fans_numb);
+                        PlayTargetVioce(TONE_TYPE_TONE2);
                     }
                     break;
                 case NETWORK_CMD_FANS_UPDATE:
@@ -59,11 +61,15 @@ void NetworkTask(void *args)
                         if(robot_net_status.fans_numb[0] != robot_net_status.fans_numb[1])
                         {
                             GUICtrl(FANS_REPORT,&robot_net_status.fans_numb);
+                            PlayTargetVioce(TONE_TYPE_TONE2);
                         }
                     }  
                     break;
                 case NETWORK_CMD_PC_CTRL:
-                    PCPowerCtrl(*(int *)rx_network_cmd.user_data);
+                    if(PCPowerCtrl(*(int *)rx_network_cmd.user_data)==0)
+                    {
+                        PlayTargetVioce(TONE_TYPE_TONELOADING);
+                    }
                     break;
                 default:
                     break;
@@ -162,6 +168,7 @@ int robot_wifi_connect(const char *ssid,const char * passwd)
         set_wifi_status(WIFI_ONLINE,ssid);
         ESP_LOGI(MODULE_NETWORK, "wifi connect success:%s\n",ssid);
         GUICtrl(WIFI_CONNECT_FINISH,ssid);
+        PlayTargetVioce(TONE_TYPE_TONE3);
     }
     return ret;
 }
